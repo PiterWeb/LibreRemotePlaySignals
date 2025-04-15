@@ -7,12 +7,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type connection struct {
-	hostChannel chan []byte
+type connectionT struct {
+	hostChannel   chan []byte
 	clientChannel chan []byte
 }
-
-
 
 const (
 	hostEnum = iota
@@ -20,33 +18,31 @@ const (
 )
 
 var connectionsMu sync.Mutex
-var connections = make(map[uint16]connection)
+var connections = make(map[uint16]connectionT)
 
-
-func HandleWebSocket(w http.ResponseWriter, r *http.Request, ID uint16, role int) {
+func handleWebSocket(w http.ResponseWriter, r *http.Request, ID uint16, role int) {
 	// Implementation of handling WebSocket connections
 	// This function will manage the WebSocket connection for the server
 	// and handle incoming messages or events.
-	
+
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  2048,
 		WriteBufferSize: 2048,
 	}
-	
+
 	conn, err := upgrader.Upgrade(w, r, nil)
-	
+
 	if err != nil {
 		http.Error(w, "Failed to upgrade connection", http.StatusInternalServerError)
 		return
 	}
-	
-	
+
 	defer conn.Close()
-	
+
 	connectionsMu.Lock()
 
 	if _, ok := connections[ID]; !ok {
-		connections[ID] = connection{
+		connections[ID] = connectionT{
 			hostChannel:   make(chan []byte),
 			clientChannel: make(chan []byte),
 		}
@@ -70,7 +66,7 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request, ID uint16, role int
 
 }
 
-func readMessages(wg *sync.WaitGroup,conn *websocket.Conn, channel chan<- []byte) {
+func readMessages(wg *sync.WaitGroup, conn *websocket.Conn, channel chan<- []byte) {
 
 	defer wg.Done()
 
@@ -91,11 +87,11 @@ func readMessages(wg *sync.WaitGroup,conn *websocket.Conn, channel chan<- []byte
 func writeMessages(wg *sync.WaitGroup, conn *websocket.Conn, channel <-chan []byte) {
 
 	defer wg.Done()
-	
+
 	for msg := range channel {
-			err := conn.WriteMessage(websocket.BinaryMessage, msg)
-			if err != nil {
-				break
-			}
+		err := conn.WriteMessage(websocket.BinaryMessage, msg)
+		if err != nil {
+			break
+		}
 	}
 }

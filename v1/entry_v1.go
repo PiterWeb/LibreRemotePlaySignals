@@ -40,8 +40,8 @@ func InitServer(port uint16, ips_listening chan<- []string) error {
 Server creates a new server instance with the given port and URL.
 The server instance is needed to send and receive client and host codes.
 */
-func Server(port uint16, url string) (ServerT, error) {
-	return server.Server(port, url)
+func Server(url string) (ServerT, error) {
+	return server.Server(url)
 }
 
 /*

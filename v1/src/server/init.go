@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"strconv"
 )
@@ -9,7 +10,7 @@ import (
 const allAddresses = "0.0.0.0"
 
 const (
-	hostRole = "host"
+	hostRole   = "host"
 	clientRole = "client"
 )
 
@@ -33,8 +34,6 @@ func Init(port uint16, ips_listening chan<- []string) error {
 			http.Error(w, "Invalid id parameter", http.StatusBadRequest)
 		}
 
-		idUint16 := uint16(id)
-
 		if !r.URL.Query().Has("role") {
 			http.Error(w, "Missing host parameter", http.StatusBadRequest)
 			return
@@ -47,9 +46,9 @@ func Init(port uint16, ips_listening chan<- []string) error {
 		}
 
 		if role == hostRole {
-			HandleWebSocket(w, r, idUint16, hostEnum)
+			handleWebSocket(w, r, uint16(id), hostEnum)
 		} else {
-			HandleWebSocket(w, r, idUint16, clientEnum)
+			handleWebSocket(w, r, uint16(id), clientEnum)
 		}
 
 		return
@@ -57,7 +56,34 @@ func Init(port uint16, ips_listening chan<- []string) error {
 
 	})
 
-	err := http.ListenAndServe(fmt.Sprintf("%s:%d", allAddresses, port), nil)
+	ips, err := getIps()
+
+	if err != nil {
+		return err
+	}
+
+	ips_listening <- ips
+
+	for _, ip := range ips {
+		fmt.Printf("Listening on %s:%d\n", ip, port)
+	}
+
+	err = http.ListenAndServe(fmt.Sprintf("%s:%d", allAddresses, port), nil)
 
 	return err
+}
+
+func getIps() ([]string, error) {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return nil, err
+	}
+
+	var ips []string
+
+	for _, addr := range addrs {
+		ips = append(ips, addr.String())
+	}
+
+	return ips, nil
 }

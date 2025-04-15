@@ -5,16 +5,7 @@ import (
 )
 
 type Server struct {
-	port uint16
 	url  string
-}
-
-func (s *Server) SetPort(port uint16) {
-	s.port = port
-}
-
-func (s Server) GetPort() uint16 {
-	return s.port
 }
 
 // SetUrl sets the URL of the server.
