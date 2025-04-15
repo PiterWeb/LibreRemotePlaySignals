@@ -30,14 +30,16 @@ func TestInitServer(t *testing.T) {
 		t.Errorf("Server creation failed: %v", err)
 	}
 
-	clientCode := ClientCodeT{}
-
 	var wg sync.WaitGroup
 	wg.Add(1)
 
 	go func() {
 		
 		defer wg.Done()
+
+		clientCode := ClientCodeT{
+			Data: "test client code",
+		}
 
 		t.Log("Sending client code to server...")
 		hostCode, err := SendClientCode(server, clientCode, 1)
@@ -47,9 +49,11 @@ func TestInitServer(t *testing.T) {
 		t.Log("Client code sent successfully and received host code:", hostCode)
 	}()
 
-	hostCode := HostCodeT{}
+	hostCode := HostCodeT{
+		Data: "test host code",
+	}
 
-	_, err = ReceiveClientCode(server, 1)
+	clientCode, err := ReceiveClientCode(server, 1)
 	
 	if err != nil {
 		t.Fatalf("ReceiveClientCode failed: %v", err)
