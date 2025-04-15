@@ -2,6 +2,7 @@ package signals
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/PiterWeb/LibreRemotePlaySignals/v1/src/types"
 	"github.com/gorilla/websocket"
@@ -11,7 +12,11 @@ func SendClientCode(s types.Server, client_code types.ClientCode, ID uint16) (ty
 	// Implementation of sending the client code to the server
 	// and receiving the host code back.
 	
-	c, _, err := websocket.DefaultDialer.Dial(fmt.Sprintf("%s?role=client&id=%d",s.GetUrl(), ID), nil)
+	connUrl := fmt.Sprintf("%s?role=client&id=%d",s.GetUrl(), ID)
+
+	log.Printf("Connecting to server at %s\n", connUrl)
+
+	c, _, err := websocket.DefaultDialer.Dial(connUrl, nil)
 
 	if err != nil {
 		return types.HostCode{}, err
@@ -40,7 +45,11 @@ func SendClientCode(s types.Server, client_code types.ClientCode, ID uint16) (ty
 func SendHostCode(s types.Server, host_code types.HostCode, ID uint16) error {
 	// Implementation of sending the host code to the server.
 	
-	c, _, err := websocket.DefaultDialer.Dial(fmt.Sprintf("%s?role=host&id=%d",s.GetUrl(), ID), nil)
+	connUrl := fmt.Sprintf("%s?role=host&id=%d", s.GetUrl(), ID)
+
+	log.Printf("Connecting to server at %s\n", connUrl)
+
+	c, _, err := websocket.DefaultDialer.Dial(connUrl, nil)
 
 	if err != nil {
 		return err

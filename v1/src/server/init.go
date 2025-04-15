@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"strconv"
@@ -19,7 +20,7 @@ func Init(port uint16, ips_listening chan<- []string) error {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 
 		// Handle WebSocket connection
-		fmt.Printf("WebSocket connection established from %s\n", r.RemoteAddr)
+		log.Printf("WebSocket connection established from %s\n", r.RemoteAddr)
 
 		if !r.URL.Query().Has("id") {
 			http.Error(w, "Missing id parameter", http.StatusBadRequest)
@@ -65,7 +66,7 @@ func Init(port uint16, ips_listening chan<- []string) error {
 	ips_listening <- ips
 
 	for _, ip := range ips {
-		fmt.Printf("Listening on %s:%d\n", ip, port)
+		log.Printf("Listening on %s:%d\n", ip, port)
 	}
 
 	err = http.ListenAndServe(fmt.Sprintf("%s:%d", allAddresses, port), nil)
@@ -82,7 +83,9 @@ func getIps() ([]string, error) {
 	var ips []string
 
 	for _, addr := range addrs {
-		ips = append(ips, addr.String())
+		if ipnet, ok := addr.(*net.IPNet); ok{
+			ips = append(ips, ipnet.IP.String())
+		}
 	}
 
 	return ips, nil
