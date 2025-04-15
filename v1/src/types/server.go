@@ -5,15 +5,15 @@ import (
 )
 
 type Server struct {
-	port uint32
+	port uint16
 	url  string
 }
 
-func (s *Server) SetPort(port uint32) {
+func (s *Server) SetPort(port uint16) {
 	s.port = port
 }
 
-func (s Server) GetPort() uint32 {
+func (s Server) GetPort() uint16 {
 	return s.port
 }
 
