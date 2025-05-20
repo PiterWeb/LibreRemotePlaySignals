@@ -53,20 +53,29 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, ID uint16, role int
 	wg.Add(2)
 
 	if role == hostEnum {
-		go readMessages(&wg, conn, connections[ID].hostChannel)
-		go writeMessages(&wg, conn, connections[ID].clientChannel)
+		go writeMessage(&wg, conn, connections[ID].clientChannel)
+		go readMessage(&wg, conn, connections[ID].hostChannel)
 	} else {
-		go readMessages(&wg, conn, connections[ID].clientChannel)
-		go writeMessages(&wg, conn, connections[ID].hostChannel)
+		go readMessage(&wg, conn, connections[ID].clientChannel)
+		go writeMessage(&wg, conn, connections[ID].hostChannel)
 	}
 
 	connectionsMu.Unlock()
 
 	wg.Wait()
 
+	if role == clientEnum {
+
+		connectionsMu.Lock()
+
+		delete(connections, ID)
+
+		connectionsMu.Unlock()
+	}
+
 }
 
-func readMessages(wg *sync.WaitGroup, conn *websocket.Conn, channel chan<- []byte) {
+func readMessage(wg *sync.WaitGroup, conn *websocket.Conn, channel chan<- []byte) {
 
 	defer wg.Done()
 
@@ -82,16 +91,20 @@ func readMessages(wg *sync.WaitGroup, conn *websocket.Conn, channel chan<- []byt
 
 		channel <- msg
 
+		break
+
 	}
+
 }
-func writeMessages(wg *sync.WaitGroup, conn *websocket.Conn, channel <-chan []byte) {
+func writeMessage(wg *sync.WaitGroup, conn *websocket.Conn, channel <-chan []byte) {
 
 	defer wg.Done()
 
 	for msg := range channel {
-		err := conn.WriteMessage(websocket.BinaryMessage, msg)
-		if err != nil {
-			break
-		}
+
+		_ = conn.WriteMessage(websocket.BinaryMessage, msg)
+
+		break
+
 	}
 }

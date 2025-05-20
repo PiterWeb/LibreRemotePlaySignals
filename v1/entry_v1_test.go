@@ -5,14 +5,29 @@ import (
 	"testing"
 )
 
-func TestInitServer(t *testing.T) {
-	
+func TestServer(t *testing.T) {
+
+	port := uint16(8080)
+
+	ips_listening := make(chan []string)
+
+	go func() {
+		<-ips_listening
+		close(ips_listening)
+	}()
+
+	t.Log("Server initialized successfully")
+	InitServer(port, ips_listening)
+
+}
+func TestAll(t *testing.T) {
+
 	// Test the InitServer function
 	// This is a placeholder test and should be replaced with actual test logic
 	port := uint16(8080)
 	ips_listening := make(chan []string)
 
-	go func () {
+	go func() {
 		err := InitServer(port, ips_listening)
 		if err != nil {
 			t.Errorf("InitServer failed: %v", err)
@@ -34,7 +49,7 @@ func TestInitServer(t *testing.T) {
 	wg.Add(1)
 
 	go func() {
-		
+
 		defer wg.Done()
 
 		clientCode := ClientCodeT{
@@ -54,7 +69,7 @@ func TestInitServer(t *testing.T) {
 	}
 
 	clientCode, err := ReceiveClientCode(server, 1)
-	
+
 	if err != nil {
 		t.Fatalf("ReceiveClientCode failed: %v", err)
 	}
