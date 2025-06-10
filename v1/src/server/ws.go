@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"net/http"
 	"sync"
 
@@ -28,11 +29,15 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, ID uint16, role int
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  2048,
 		WriteBufferSize: 2048,
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
 	}
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
+		log.Println("Failed to upgrade connection ", err.Error())
 		http.Error(w, "Failed to upgrade connection", http.StatusInternalServerError)
 		return
 	}
