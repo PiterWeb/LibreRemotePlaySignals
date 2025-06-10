@@ -33,6 +33,7 @@ func Init(port uint16, ips_listening chan<- []string) error {
 
 		if err != nil {
 			http.Error(w, "Invalid id parameter", http.StatusBadRequest)
+			return
 		}
 
 		if !r.URL.Query().Has("role") {
@@ -44,6 +45,7 @@ func Init(port uint16, ips_listening chan<- []string) error {
 
 		if role != hostRole && role != clientRole {
 			http.Error(w, "Invalid role parameter", http.StatusBadRequest)
+			return
 		}
 
 		if role == hostRole {
