@@ -8,6 +8,14 @@ type Server struct {
 	url  string
 }
 
+type ServerOptions struct {
+	Port uint16
+	// Secure struct {
+	// 	Domains []string
+	// 	Enabled bool
+	// }
+}
+
 // SetUrl sets the URL of the server.
 // The URL must be a valid URL string.
 // If the URL is not valid, an error will be returned.

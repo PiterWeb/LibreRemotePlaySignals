@@ -16,8 +16,12 @@ func TestServer(t *testing.T) {
 		close(ips_listening)
 	}()
 
+	options := ServerOptions{
+		Port: port,
+	}
+	
 	t.Log("Server initialized successfully")
-	InitServer(port, ips_listening)
+	InitServer(options, ips_listening)
 
 }
 func TestAll(t *testing.T) {
@@ -27,8 +31,12 @@ func TestAll(t *testing.T) {
 	port := uint16(8080)
 	ips_listening := make(chan []string)
 
+	options := ServerOptions{
+		Port: port,
+	}
+	
 	go func() {
-		err := InitServer(port, ips_listening)
+		err := InitServer(options, ips_listening)
 		if err != nil {
 			t.Errorf("InitServer failed: %v", err)
 		}

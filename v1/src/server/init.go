@@ -1,11 +1,16 @@
 package server
 
 import (
+	// "crypto/tls"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"strconv"
+	"time"
+
+	"github.com/PiterWeb/LibreRemotePlaySignals/v1/src/types"
+	// "golang.org/x/crypto/acme/autocert"
 )
 
 const allAddresses = "0.0.0.0"
@@ -15,9 +20,11 @@ const (
 	clientRole = "client"
 )
 
-func Init(port uint16, ips_listening chan<- []string) error {
+func Init(options types.ServerOptions, ips_listening chan<- []string) error {
 
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+	serveMux := http.NewServeMux()
+
+	serveMux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 
 		// Handle WebSocket connection
 		log.Printf("WebSocket connection established from %s\n", r.RemoteAddr)
@@ -68,10 +75,29 @@ func Init(port uint16, ips_listening chan<- []string) error {
 	ips_listening <- ips
 
 	for _, ip := range ips {
-		log.Printf("Listening on %s:%d\n", ip, port)
+		log.Printf("Listening on %s:%d\n", ip, options.Port)
 	}
 
-	err = http.ListenAndServe(fmt.Sprintf("%s:%d", allAddresses, port), nil)
+	// autocertManager := autocert.Manager{
+	// 	Prompt:     autocert.AcceptTOS,
+	// 	HostPolicy: autocert.HostWhitelist(options.Secure.Domains...),
+	// }
+
+	// tlsConfig := &tls.Config{
+	// 	GetCertificate:           autocertManager.GetCertificate,
+	// 	PreferServerCipherSuites: true,
+	// 	CurvePreferences:         []tls.CurveID{tls.X25519, tls.CurveP256},
+	// }
+
+	server := &http.Server{
+		Addr: fmt.Sprintf("%s:%d", allAddresses, options.Port),
+		// TLSConfig: tlsConfig,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		Handler:      serveMux,
+	}
+
+	err = server.ListenAndServe()
 
 	return err
 }
@@ -85,7 +111,7 @@ func getIps() ([]string, error) {
 	var ips []string
 
 	for _, addr := range addrs {
-		if ipnet, ok := addr.(*net.IPNet); ok{
+		if ipnet, ok := addr.(*net.IPNet); ok {
 			ips = append(ips, ipnet.IP.String())
 		}
 	}

@@ -21,6 +21,8 @@ type (
 	HostCodeT = types.HostCode
 	// ServerT represents the server instance used to send and receive codes.
 	ServerT = types.Server
+	// ServerOptions represents the configuration available for the HTTP/WS server (port, ...)
+	ServerOptions = types.ServerOptions
 )
 
 /*
@@ -32,8 +34,8 @@ The server will listen on all available IPs.
 This function is used in the CLI or in the LibreRemotePlay Host APP to start the server.
 The server will be started in a goroutine.
 */
-func InitServer(port uint16, ips_listening chan<- []string) error {
-	return server.Init(port, ips_listening)
+func InitServer(options ServerOptions, ips_listening chan<- []string) error {
+	return server.Init(options, ips_listening)
 }
 
 /*
