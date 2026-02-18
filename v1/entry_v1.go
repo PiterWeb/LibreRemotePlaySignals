@@ -67,3 +67,10 @@ ReceiveClientCode receives the client code from the server with a given connecti
 func ReceiveClientCode(s ServerT, ID uint16) (ClientCodeT, error) {
 	return signals.ReceiveClientCode(s, ID)
 }
+
+/*
+GetMDNSLocal returns the current MDNS .local domain used by the server
+ */
+func GetMDNSLocal() string {
+	return server.GetMDNSLocalUsed()
+}

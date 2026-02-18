@@ -10,6 +10,7 @@ type Server struct {
 
 type ServerOptions struct {
 	Port uint16
+	LocalName string
 	// Secure struct {
 	// 	Domains []string
 	// 	Enabled bool

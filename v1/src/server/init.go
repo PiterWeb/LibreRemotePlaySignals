@@ -22,6 +22,13 @@ const (
 
 func Init(options types.ServerOptions, ips_listening chan<- []string) error {
 
+	go func() {
+		err := announceMDNS(options.LocalName)
+		if err != nil {
+			panic(err)
+		}
+	}()
+	
 	serveMux := http.NewServeMux()
 
 	serveMux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
@@ -55,14 +62,12 @@ func Init(options types.ServerOptions, ips_listening chan<- []string) error {
 			return
 		}
 
+		// Handle the WebSocket connection
 		if role == hostRole {
 			handleWebSocket(w, r, uint16(id), hostEnum)
 		} else {
 			handleWebSocket(w, r, uint16(id), clientEnum)
 		}
-
-		return
-		// Handle the WebSocket connection
 
 	})
 

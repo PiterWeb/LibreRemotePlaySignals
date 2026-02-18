@@ -24,6 +24,28 @@ func TestServer(t *testing.T) {
 	InitServer(options, ips_listening)
 
 }
+
+func TestMDNS(t *testing.T) {
+	
+	port := uint16(8080)
+
+	ips_listening := make(chan []string)
+
+	go func() {
+		<-ips_listening
+		close(ips_listening)
+	}()
+
+	options := ServerOptions{
+		Port: port,
+		LocalName: "test-easyconnect.local",
+	}
+	
+	t.Log("Server initialized successfully")
+	InitServer(options, ips_listening)
+	
+}
+
 func TestAll(t *testing.T) {
 
 	// Test the InitServer function
