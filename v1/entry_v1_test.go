@@ -27,7 +27,7 @@ func TestServer(t *testing.T) {
 
 func TestMDNS(t *testing.T) {
 	
-	port := uint16(8080)
+	port := uint16(8081)
 
 	ips_listening := make(chan []string)
 
@@ -50,7 +50,7 @@ func TestAll(t *testing.T) {
 
 	// Test the InitServer function
 	// This is a placeholder test and should be replaced with actual test logic
-	port := uint16(8080)
+	port := uint16(8082)
 	ips_listening := make(chan []string)
 
 	options := ServerOptions{
