@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"log"
 	"net"
 	"os"
 	"strings"
@@ -32,6 +33,7 @@ func announceMDNS(localName string) error {
 	}
 	
 	if used {
+		log.Println("Localname already in use, mdns canceled")
 		return nil
 	}
 	
